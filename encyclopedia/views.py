@@ -22,7 +22,9 @@ def index(request):
 def entry(request, title):
     html_content = convert_md(title)
     if html_content == None:
-        return render(request, "encyclopedia/error.html")
+        return render(request, "encyclopedia/error.html", {
+            "message": "Entry not found, please try another search."
+        })
     else:
         return render(request, "encyclopedia/entry.html", {
             "content": html_content,
@@ -49,6 +51,28 @@ def search(request):
             return render(request, "encyclopedia/search.html", {
                 "suggestion": suggestion
             })
+
+def new(request):
+    if request.method == "POST":
+         title = request.POST['title']
+         content = request.POST['content']
+         title_entries = util.get_entry(title)
+         if title_entries is not None:
+             return render(request, "encyclopedia/error.html", {
+                 "message": "This article already exists"
+             })
+         else: 
+             util.save_entry(title, content)
+             html_content = convert_md(title)
+             return render(request, "encyclopedia/entry.html", {
+                 "title": title,
+                 "content": html_content
+             })
+    else:
+        return render(request, "encyclopedia/new.html")
+
+
+
 
 
     
